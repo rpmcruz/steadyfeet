@@ -76,7 +76,7 @@ void Surface::draw_part(int x, int y, int sx, int sy, int sw, int sh)
   if(x + sw < 0 || x > screen->w || y + sh < 0 || y > screen->h)
     return;   // drawing out of screen range
 
-  SDL_Rect src = { sx, sy, sw, sh };
+  SDL_Rect src = { (Sint16)sx, (Sint16)sy, (Uint16)sw, (Uint16)sh };
   SDL_Rect dst;
   dst.x = x; dst.y = y;
   SDL_BlitSurface(sdl_surface, &src, screen->sdl_screen, &dst);

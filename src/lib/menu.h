@@ -57,7 +57,7 @@ struct MenuEntry
 class Menu
   {
   public:
-    Menu();
+    Menu(const std::string &name);
     ~Menu();
 
     void add_entry(const std::string& str, int id);
@@ -65,14 +65,14 @@ class Menu
 
     bool has_selected();
     int get_selected();
-    int get_subselected();
+    Menu *get_submenu();
+    void reset();
 
     void show();
 
     static int idle;
 
   private:
-    void reset();
     void draw(int x);
     void check_events(int x);
 
@@ -88,6 +88,7 @@ class Menu
     bool cancel;
 
     unsigned int pos_y, width;
+    std::string name;
   };
 
 #endif /*MENU_H*/

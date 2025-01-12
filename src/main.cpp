@@ -32,27 +32,24 @@
     #warning If installed, the game will not work!
 #endif
 
-#define VERSION "0.0.1"
+#define VERSION "0.0.2"
 
 /* Check if directory exists. */
 bool dir_exists(const std::string& dirname);
 
 int main(int argc, char* argv[])
   {
-//  SDL_Joystick *joystick;
-
   /* Parsing command-line arguments. */
-  bool fullscreen_flag = false;
+  bool fullscreen_flag = true;
   bool leveleditor_flag = false;
   std::string levelfile_passed;
-  int joy_nb = 0;
   for(int i = 1; i < argc; i++)
     {
     if(!strcmp(argv[i], "--help"))
       {
       std::cout << "Usage: " << argv[0] << " [OPTIONS] [LEVEL_FILE]\n\n"
                    "Options:\n"
-                   "\t--fullscreen, -f\tRuns the game in fullscreen mode.\n"
+                   "\t--windowed\tRuns the game in window mode.\n"
                    "\t--leveleditor\tGoes directly to the level editor.\n"
                    "\t--use-joy NUMBER\tUses the joystick NUMBER.\n"
                    "\t--version, -v\tPrints the game version.\n"
@@ -67,10 +64,11 @@ int main(int argc, char* argv[])
       std::cout << "Steadyfeet version " VERSION "\n\n";
       return 0;
       }
-    if(!strcmp(argv[i], "--fullscreen") || !strcmp(argv[i], "-f"))
-      fullscreen_flag = true;
+    if(!strcmp(argv[i], "--windowed"))
+      fullscreen_flag = false;
     else if(!strcmp(argv[i], "--leveleditor"))
       leveleditor_flag = true;
+#if 0
     else if(!strcmp(argv[i], "--use-joy"))
       {
       i++;
@@ -79,6 +77,7 @@ int main(int argc, char* argv[])
       else
         std::cerr << "Number was not feed when used --use-joy: " << argv[i] << std::endl;
       }
+#endif
     else if(argv[i][0] == '-')
       {
       std::cout << "Unknown argument passed: " << argv[i] << std::endl;

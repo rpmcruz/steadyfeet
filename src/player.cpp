@@ -97,7 +97,6 @@ void Player::draw()
     return;
   else if(sequence == FALLING_SEQ)
     {
-std::cerr << "falling\n";
     surface_falling->draw_frame(x, y,
             timer.get_gone()*FALLING_FRAMES/DEAD_TIME, FALLING_FRAMES);
     }

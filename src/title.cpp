@@ -245,12 +245,14 @@ void show_title()
         {
         case START_GAME_ID:
           {
+          main_menu->reset();
           Gameloop gameloop;
           gameloop.run();
           }
           break;
         case LEVELEDITOR_ID:
           {
+          main_menu->reset();
           LevelEditor leveleditor;
           leveleditor.run();
           }
@@ -259,8 +261,19 @@ void show_title()
           // Not yet implemented
           break;
         case BACK_ID:
-          if(main_menu->get_subselected() == 0)
+          if(main_menu->get_submenu() == NULL) {
+            // if no submenu then alt+f4 or control+c pressed
             done = true;
+          }
+          else switch(main_menu->get_submenu()->get_selected()) {
+            case 0:
+              done = true;
+              break;
+            case BACK_ID:
+              main_menu->get_submenu()->reset();
+              main_menu->reset();
+              break;
+          }
           break;
         case NO_ITEM_SELECTED:
         default:

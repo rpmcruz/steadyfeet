@@ -39,7 +39,7 @@ int Menu::idle = false;
 
 bool show_yes_no_dialog(const char* text)
   {
-  Menu menu;
+  Menu menu("yesno");
   menu.add_entry("Yes", 1);
   menu.add_entry("No", 0);
   while(true)
@@ -59,7 +59,7 @@ bool show_yes_no_dialog(const char* text)
 
 void setup_menus()
   {
-  main_menu = new Menu();
+  main_menu = new Menu("main");
   main_menu->add_entry("Start Game", START_GAME_ID);
   main_menu->add_entry("Level Editor", LEVELEDITOR_ID);
   main_menu->add_entry("Quit", BACK_ID);
@@ -87,8 +87,8 @@ void MenuEntry::draw(int x, int y, bool selected)
     draw_text(label.c_str(), x, y, ENTRY_FONT, 252,252,252, 168,168,168, CENTER_ALLIGN);
   }
 
-Menu::Menu()
-  : parent(NULL), pos_y(screen->h/2), width(0)
+Menu::Menu(const std::string &name)
+  : parent(NULL), pos_y(screen->h/2), width(0), name(name)
   {
   reset();
   }
@@ -102,6 +102,7 @@ Menu::~Menu()
 
 void Menu::reset()
   {
+    std::cerr << name << "reset -> selected=false\n";
   hover_entry = 0;
   selected = (cancel = false);
   selected_submenu = -1;
@@ -120,7 +121,7 @@ void Menu::add_subentry(const std::string& str, int id)
   assert(!submenus.empty());
   if(submenus.back() == NULL)
     {
-    submenus.back() = new Menu();
+    submenus.back() = new Menu("submenu");
     submenus.back()->parent = this;
     }
   submenus.back()->add_entry(str, id);
@@ -135,18 +136,20 @@ int Menu::get_selected()
   {
   if(cancel)
     return BACK_ID;
-  if(selected == false)
+  if(!selected) {
     return NO_ITEM_SELECTED;
+  }
   int sel = entries[hover_entry].id;
-  reset();
+  //reset();
   return sel;
   }
 
-int Menu::get_subselected()
-  {
-  if(submenus[hover_entry] != NULL)
-      return submenus[hover_entry]->get_selected();
-  }
+Menu *Menu::get_submenu()
+{
+  if(selected_submenu < 0)
+    return NULL;
+  return submenus[selected_submenu];
+}
 
 #define MAINMENU_X (screen->w/2)
 #define SUBMENU_X  (screen->w-100)
@@ -162,9 +165,6 @@ void Menu::show()
     submenus[selected_submenu]->check_events(SUBMENU_X);
   else
     this->check_events(MAINMENU_X);
-
-  if(selected && selected_submenu != -1 && get_subselected() == BACK_ID)
-    selected_submenu = -1;
   }
 
 void Menu::draw(int x)
@@ -203,8 +203,11 @@ void Menu::check_events(int pos_x)
               break;
               }
           case SDLK_SPACE:
-            if(submenus[hover_entry] != NULL)
+            if(submenus[hover_entry] != NULL) {
               selected_submenu = hover_entry;
+              std::cerr << name << "selected submenu = " << hover_entry << std::endl;
+            }
+            std::cerr << name << "selected = true (space)\n";
             selected = true;
             break;
           default:
@@ -233,8 +236,10 @@ void Menu::check_events(int pos_x)
           if(x < pos_x-(width/2) || x > pos_x-(width/2) + width)
             break;
           int entry = (y - pos_y) / ENTRY_SIZE;
-          if(entry >= 0 && entry < (int)entries.size() && entry == hover_entry)
+          if(entry >= 0 && entry < (int)entries.size() && entry == hover_entry) {
+            std::cerr << name << "selected = true (mouse button down)\n";
             selected = true;
+          }
           }
         break;
       case SDL_QUIT:	// window closed
