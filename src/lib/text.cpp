@@ -88,6 +88,8 @@ static int char_map[][5] = {
   { '-', BOT_HOR, BOT_HOR, NO_LINE, NO_LINE },
   { '_', NO_LINE, NO_LINE, BOT_HOR, BOT_HOR },
   { '?', SLASH_DIAG, WINDS_DIAG|BOT_HOR, LEFT_VER, NO_LINE },
+  { '+', BOT_HOR|RIGHT_VER, BOT_HOR|LEFT_VER, LEFT_VER, RIGHT_VER },
+  { '/', NO_LINE, SLASH_DIAG, NO_LINE, SLASH_DIAG },
   { '\0', NO_LINE, NO_LINE, NO_LINE, NO_LINE }  // last case
   };
 

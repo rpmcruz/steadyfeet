@@ -146,7 +146,8 @@ static const char help[] =
   "\n\n"
   "F1 for instructions\n"
   "F3 to save and test the level\n"
-  "F4 for just saving";
+  "F4 for just saving\n"
+  "Press +/- for next/previous level";
 
 void GameSession::draw_leveleditor_info_msg()
   {
