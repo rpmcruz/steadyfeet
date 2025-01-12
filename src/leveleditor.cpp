@@ -125,7 +125,7 @@ void LevelEditor::run()
 
     screen->update();
     }
-  if(show_yes_no_dialog("Want to save level changes?"))
+  if(modified && show_yes_no_dialog("Want to save level changes?"))
     save_level();
   }
 
@@ -137,6 +137,7 @@ void LevelEditor::load_level(int nb)
   game_session->load_level(nb);
 
   cursor.x = (cursor.y = 0);
+  modified = false;
   }
 
 void LevelEditor::save_level()
@@ -222,36 +223,43 @@ void LevelEditor::check_events()
           /* Let's place tiles on request. */
           case SDLK_KP0:
           case SDLK_0:
+            modified = true;
             board->set_tile(cursor.x, cursor.y,NO_TILE);
             set_selected_button(0);
             break;
           case SDLK_KP1:
           case SDLK_1:
+            modified = true;
             board->set_tile(cursor.x,cursor.y,ONE_TIME_TILE);
             set_selected_button(1);
             break;
           case SDLK_KP2:
           case SDLK_2:
+            modified = true;
             board->set_tile(cursor.x,cursor.y,TWO_TIMES_TILE);
             set_selected_button(2);
             break;
           case SDLK_KP3:
           case SDLK_3:
+            modified = true;
             board->set_tile(cursor.x,cursor.y,THREE_TIMES_TILE);
             set_selected_button(3);
             break;
           case SDLK_KP4:
           case SDLK_4:
+            modified = true;
             board->set_tile(cursor.x,cursor.y,PERMANENT_TILE);
             set_selected_button(4);
             break;
           case SDLK_KP5:
           case SDLK_5:
+            modified = true;
             board->set_tile(cursor.x,cursor.y,TELEPORT_TILE);
             set_selected_button(5);
             break;
           case SDLK_KP6:
           case SDLK_6:
+            modified = true;
             player->set_pos(cursor.x,cursor.y);
             set_selected_button(6);
             break;
@@ -318,6 +326,7 @@ void LevelEditor::check_events()
           int x = (event.button.x-BOARD_X) / TILE_W, y = (event.button.y-BOARD_Y) / TILE_H;
           if(x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT)
             {
+            modified = true;
             cursor.x = x;
             cursor.y = y;
             if(current_tile == MAX_TILES)
@@ -334,8 +343,10 @@ void LevelEditor::check_events()
         else if(event.button.button == SDL_BUTTON_RIGHT)
           {
           int x = (event.button.x-BOARD_X) / TILE_W, y = (event.button.y-BOARD_Y) / TILE_H;
-          if(x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT)
+          if(x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT) {
+            modified = true;
             board->set_tile(x, y, NO_TILE);
+          }
           }
         break;
       case SDL_QUIT:	// window closed

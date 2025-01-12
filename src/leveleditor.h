@@ -92,6 +92,7 @@ class LevelEditor
     Cursor cursor;
     Button* button[TOTAL_BUTTONS];
     int current_tile;
+    bool modified;
   };
 
 #endif /*LEVELEDITOR_H*/
