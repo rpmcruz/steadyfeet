@@ -14,4 +14,4 @@ I developed this a long time ago: there is no sound and some menus are missing, 
 
 Just type "make" to compile it and "make install" to install it (optional).
 
-(Also [available for MorphOS](https://www.morphos-storage.net/?id=2297846).)
+(Also [available for MorphOS](https://www.morphos-storage.net/?find=SteadyFeet).)
