@@ -10,6 +10,7 @@ DATA_PREFIX=$(PREFIX)/share/steadyfeet
 BIN_PREFIX=$(PREFIX)/bin
 DOCS_PREFIX=$(DATA_PREFIX)/docs
 ICON_PREFIX=$(PREFIX)/share/icons
+APPS_PREFIX=$(PREFIX)/applications
 
 CC = g++
 CXXFLAGS = -Wall -g `sdl-config --cflags` -DDATA_PREFIX=\"$(DATA_PREFIX)\"
@@ -39,9 +40,11 @@ install:
 	install COPYING INSTALL README $(DOCS_PREFIX)
 	install steadyfeet $(BIN_PREFIX)
 	install data/graphics/icon.xpm $(ICON_PREFIX)/steadyfeet.xpm
+	install steadyfeet.desktop $(APPS_PREFIX)
 
 uninstall:
 	rm -rf $(DATA_PREFIX)
 	rm -f  $(BIN_PREFIX)/steadyfeet
 	rm -rf $(DOCS_PREFIX)
 	rm -f  $(ICON_PREFIX)/steadyfeet.xpm
+	rm -f  $(APPS_PREFIX)/steadyfeet.desktop

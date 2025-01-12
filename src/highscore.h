@@ -25,7 +25,7 @@ class Background;
 void read_highscores();
 void save_highscores();
 
-void add_highscore(unsigned int score, Background* background);
+void add_highscore(unsigned int score, Background* background, bool completed_game);
 void print_highscore();
 
 #endif /*HIGHSCORE_H*/

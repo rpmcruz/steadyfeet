@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <algorithm>
 
 #include "file_access.h"
 
@@ -113,12 +114,12 @@ bool find_datadir(const std::string& invocation)
   }
 
 /* Get all filenames from certain directory. */
-std::set<std::string> get_files_in_dir(const std::string& path)
+std::vector<std::string> get_files_in_dir(const std::string& path)
   {
   DIR *dirStructP;
   struct dirent *direntp;
 
-  std::set <std::string> sfiles;
+  std::vector <std::string> sfiles;
 
   if((dirStructP = opendir(path.c_str())) != NULL)
     {
@@ -129,18 +130,15 @@ std::set<std::string> get_files_in_dir(const std::string& path)
 
       filename = path + "/" + direntp->d_name;
 
-      if(std::string(direntp->d_name) == "." ||
-         std::string(direntp->d_name) == ".." ||
-         std::string(direntp->d_name) == "CVS")
-        continue;  // ignore . and .. directories
+      if(std::string(direntp->d_name)[0] == '.')
+        continue;  // ignore .xxx directories
 
       if (stat(filename.c_str(), &buf) == 0 && S_ISREG(buf.st_mode))
-        {
-        sfiles.insert(direntp->d_name);
-        }
+        sfiles.push_back(direntp->d_name);
       }
     closedir(dirStructP);
     }
 
+  std::sort(sfiles.begin(), sfiles.end());
   return sfiles;
   }

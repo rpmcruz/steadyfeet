@@ -32,9 +32,9 @@
 
 static SDL_Event event;
 
-Gameloop::Gameloop()
+Gameloop::Gameloop(const std::string& levelset, bool user_made)
   {
-  game_session = new GameSession();
+  game_session = new GameSession(levelset, user_made, false);
   player = game_session->player;
   board = game_session->board;
   background = game_session->background;
@@ -43,11 +43,6 @@ Gameloop::Gameloop()
 Gameloop::~Gameloop()
   {
   delete game_session;
-  }
-
-void Gameloop::load_levelset(const std::string& file)
-  {
-  game_session->set_levelset(file);
   }
 
 void Gameloop::run(bool test_mode)
@@ -78,7 +73,7 @@ std::cerr << "player dead\n";
 std::cerr << "game end\n";
           /* Game end. */
           // FIXME: game end should also happen on last level
-          add_highscore(player->stats.score, background);
+          add_highscore(player->stats.score, background, false);
           break;
           }
         else  // just reload the level
@@ -88,8 +83,11 @@ std::cerr << "let's re-load this level\n";
 }
         }
       }
-    if(game_session->state == COMPLETED && !player->is_animating())
+    if(game_session->state == COMPLETED && !player->is_animating()) {
+      if(game_session->level_nb >= game_session->total_levels)
+        add_highscore(player->stats.score, background, true);
       load_level(game_session->level_nb+1);
+    }
 
     // time for drawing
     game_session->draw();
@@ -311,8 +309,9 @@ void Gameloop::check_events()
      in main.cpp . */
   if(mouse_pressed && !event_timer.check())
     {
-    int x = (event.button.x-BOARD_X) / TILE_W, y = (event.button.y-BOARD_Y) / TILE_H;
-    if(x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT)
+    Board *board = game_session->board;
+    int x = (event.button.x-board->board_x) / TILE_W, y = (event.button.y-board->board_y) / TILE_H;
+    if(x >= 0 && x < board->board_width && y >= 0 && y < board->board_height)
       if(player->tile_x == x || player->tile_y == y)
         {
         event_timer.start(EVENT_PRESSING_DELAY);

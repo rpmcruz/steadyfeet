@@ -37,10 +37,8 @@ class GameSession
   friend class LevelEditor;
 
   public:
-    GameSession(bool background_border = true);
+    GameSession(const std::string &levelset, bool user_made, bool background_border);
     ~GameSession();
-
-    void set_levelset(const std::string& file);
 
     void load_level(int nb);
     void load_demo();  // used for the title demo
@@ -63,6 +61,7 @@ class GameSession
 
   private:
     GameState state;
+    void set_levelset(const std::string& file, bool user_made);
 
     /* Information regard the current level. */
     // don't edit this directly, use set_levelset()
@@ -70,6 +69,7 @@ class GameSession
     std::string levelset_absolute;  // this got the absolute path to the file
 
     int level_nb;
+    int total_levels;
   };
 
 #endif /*GAME_SESSION_H*/

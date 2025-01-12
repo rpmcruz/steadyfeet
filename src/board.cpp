@@ -51,8 +51,17 @@ void Board::load_demo()
   session->player->set_pos(10, 7);
   total_tiles = 10;
 
-  for(int x = 0; x < BOARD_WIDTH; x++)
-    for(int y = 0; y < BOARD_HEIGHT; y++)
+  board_width = board_height = 12;
+  board.resize(board_width);
+  for (auto& row : board) {
+      row.resize(board_height, 0);
+  }
+
+  board_x = (640-board_width*TILE_W)/2;
+  board_y = (480-board_height*TILE_H)/2 - 15;
+
+  for(int x = 0; x < board_width; x++)
+    for(int y = 0; y < board_height; y++)
       {
       if(y >= 7 && y <= 9 && x >= 1 && x <= 10)
         {
@@ -87,13 +96,34 @@ void Board::load_demo()
   }
 
 int Board::load(const std::string& filename, int level)
-  {
+{
   std::ifstream file(filename.c_str());
   if(!file)
     {
     std::cerr << "Error: Could not read board file: " << filename << std::endl;
     return -1;
     }
+
+  // get height of board
+  board_width = 12;
+  board_height = 12;
+  std::string firstLine;
+  if(std::getline(file, firstLine)) {
+      // Calculate the length of the first line
+      std::size_t length = firstLine.length();
+      board_width = (length-4) / board_height;
+  }
+  std::cerr << "board_height: " << board_height << std::endl;
+  board_x = (640-board_width*TILE_W)/2;
+  board_y = (480-board_height*TILE_H)/2 - 15;
+
+  file.clear();
+  file.seekg(0, std::ios::beg);
+
+  board.resize(board_width);
+  for (auto& row : board) {
+      row.resize(board_height, 0);
+  }
 
   base_x = (base_y = -1);
 
@@ -122,9 +152,10 @@ int Board::load(const std::string& filename, int level)
   session->player->set_pos(pla_x-1, pla_y-1);
 
   /* Let's now read the file into our board array */
+  // POD=12x12, kgryzzles=12x18
   total_tiles = 0;
-  for(int x = 0; x < BOARD_WIDTH; x++)
-    for(int y = 0; y < BOARD_HEIGHT; y++)
+  for(int x = 0; x < board_width; x++)
+    for(int y = 0; y < board_height; y++)
       {
       file >> c;
       if(file.eof())
@@ -219,8 +250,8 @@ void Board::save(const std::string& input_filename, const std::string& output_fi
   stream += pla_y % 10 + '0' + 1;
   
   /* Let's now write the board array into the file. */
-  for(int x = 0; x < BOARD_WIDTH; x++)
-    for(int y = 0; y < BOARD_HEIGHT; y++)
+  for(unsigned int x = 0; x < board.size(); x++)
+    for(unsigned int y = 0; y < board[0].size(); y++)
       switch(board[x][y])
         {
         case NO_TILE:
@@ -282,12 +313,12 @@ void Board::save(const std::string& input_filename, const std::string& output_fi
 
 void Board::draw()
   {
-  for(int x = 0; x < BOARD_WIDTH; x++)
-    for(int y = 0; y < BOARD_HEIGHT; y++)
+  for(unsigned int x = 0; x < board.size(); x++)
+    for(unsigned int y = 0; y < board[0].size(); y++)
       {
       int t = get_tile(x,y);
       if(t != NO_TILE)
-        surface[t]->draw(x*TILE_W + BOARD_X, y*TILE_H + BOARD_Y);
+        surface[t]->draw(x*TILE_W + board_x, y*TILE_H + board_y);
       }
   }
 
@@ -298,7 +329,7 @@ void Board::draw_icon(Tile tile, int x, int y)
 
 int Board::get_tile(int x, int y)
   {
-  if(x < 0 || x >= BOARD_WIDTH || y < 0 || y >= BOARD_HEIGHT)
+  if(x < 0 || x >= (signed)board.size() || y < 0 || y >= (signed)board[0].size())
     return NO_TILE;  // out of field
 
   int t = board[x][y];
@@ -308,7 +339,7 @@ int Board::get_tile(int x, int y)
 
 void Board::set_tile(int x, int y, Tile tile)
   {
-  if(x < 0 || x >= BOARD_WIDTH || y < 0 || y >= BOARD_HEIGHT)
+  if(x < 0 || x >= (signed)board.size() || y < 0 || y >= (signed)board[0].size())
     return;  // out of field
 
   assert(tile >= NO_TILE && tile < TOTAL_TILES);

@@ -30,7 +30,7 @@ class Surface;
 
 struct Cursor
   {
-  void draw();
+  void draw(GameSession *session);
   int x, y;
   };
 
@@ -63,13 +63,12 @@ class Button
 class LevelEditor
   {
   public:
-    LevelEditor();
+    LevelEditor(const std::string& levelset, bool user_made);
     ~LevelEditor();
 
     /* Let's rock! */
     void run();
 
-    void load_levelset(const std::string& file);
     void load_level(int nb);
 
   private:

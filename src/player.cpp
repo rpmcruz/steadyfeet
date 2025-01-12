@@ -66,8 +66,8 @@ void Player::reset_level()
 
 void Player::draw()
   {
-  int x = tile_x*TILE_W + BOARD_X;
-  int y = tile_y*TILE_H + BOARD_Y;
+  int x = tile_x*TILE_W + session->board->board_x;
+  int y = tile_y*TILE_H + session->board->board_y;
 
   if(sequence == MOVING_SEQ)
     switch(direction)
@@ -89,8 +89,8 @@ void Player::draw()
       }
   else if(sequence == WARPING_SEQ)
     {
-    x = old_tile_x*TILE_W + BOARD_X;
-    y = old_tile_y*TILE_H + BOARD_Y;
+    x = old_tile_x*TILE_W + session->board->board_x;
+    y = old_tile_y*TILE_H + session->board->board_y;
     }
 
   if(sequence == FALLING_SEQ && !timer.check())

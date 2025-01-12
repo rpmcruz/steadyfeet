@@ -16,6 +16,7 @@
  ***************************************************************************/
 
 #include <iostream>
+#include <fstream>
 
 #include "lib/file_access.h"
 #include "lib/text.h"
@@ -25,13 +26,13 @@
 #include "player.h"
 #include "background.h"
 
-GameSession::GameSession(bool border)
+GameSession::GameSession(const std::string &levelset, bool user_made, bool border)
   : level_nb(0)
   {
   board = new Board(this);
   player = new Player(this);
   background = new Background(border);
-  set_levelset("series1.pod");
+  set_levelset(levelset, user_made);
   }
 
 GameSession::~GameSession()
@@ -41,14 +42,27 @@ GameSession::~GameSession()
   delete background;
   }
 
-void GameSession::set_levelset(const std::string& set)
+void GameSession::set_levelset(const std::string& set, bool user_made)
   {
   levelset_filename = set;
   /* First check if the player has already made some change to this levelset. */
-  if(file_exists(homedir + "/levels/" + levelset_filename))
+  if(user_made)
     levelset_absolute = homedir + "/levels/" + levelset_filename;
   else
     levelset_absolute = datadir + "/levels/" + levelset_filename;
+  
+  total_levels = 0;
+  std::ifstream file(levelset_absolute.c_str());
+  if (!file.is_open()) {
+      std::cerr << "Failed to open the file." << std::endl;
+      return;
+  }
+  std::string line;
+  while (std::getline(file, line)) {
+      total_levels++;
+  }
+  std::cerr << set << " total levels: " << total_levels << std::endl;
+  file.close();
   }
 
 void GameSession::update(float elapsed_time)
@@ -147,7 +161,8 @@ static const char help[] =
   "F1 for instructions\n"
   "F3 to save and test the level\n"
   "F4 for just saving\n"
-  "Press +/- for next/previous level";
+  "Press +/- for next/previous level\n"
+  "To play your levels choose user in the main menu";
 
 void GameSession::draw_leveleditor_info_msg()
   {

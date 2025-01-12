@@ -33,9 +33,9 @@
 
 static SDL_Event event;
 
-void Cursor::draw()
+void Cursor::draw(GameSession *session)
   {
-  screen->draw_animated_filled_rect(x*TILE_W + BOARD_X, y*TILE_H + BOARD_Y, TILE_W, TILE_H, 6);
+  screen->draw_animated_filled_rect(x*TILE_W + session->board->board_x, y*TILE_H + session->board->board_y, TILE_W, TILE_H, 6);
   }
 
 Button::Button(const std::string image_file, int id, int x, int y, bool selected)
@@ -67,9 +67,9 @@ bool Button::check_event(int x, int y)
   return true;
   }
 
-LevelEditor::LevelEditor()
+LevelEditor::LevelEditor(const std::string &levelset, bool user_made)
   {
-  game_session = new GameSession();
+  game_session = new GameSession(levelset, user_made, true);
   char str[1024];
   for(int i = 0; i <= MAX_TILES+1; i++)
     {
@@ -96,11 +96,6 @@ LevelEditor::~LevelEditor()
     delete button[i];
 }
 
-void LevelEditor::load_levelset(const std::string& file)
-  {
-  game_session->set_levelset(file);
-  }
-
 void LevelEditor::run()
   {
   load_level(1);
@@ -112,14 +107,15 @@ void LevelEditor::run()
     game_session->draw();
     // draw a grid
       {
-      for(int x = 1; x < BOARD_WIDTH; x++)
-        screen->fill_rect(BOARD_X+x*TILE_W, BOARD_Y, 1, BOARD_HEIGHT*TILE_H,
+        Board *board = game_session->board;
+      for(int x = 1; x < board->board_width; x++)
+        screen->fill_rect(board->board_x+x*TILE_W, board->board_y, 1, board->board_height*TILE_H,
                           128,128,128);
-      for(int y = 1; y < BOARD_HEIGHT; y++)
-        screen->fill_rect(BOARD_X, BOARD_Y+y*TILE_H, BOARD_WIDTH*TILE_W, 1,
+      for(int y = 1; y < board->board_height; y++)
+        screen->fill_rect(board->board_x, board->board_y+y*TILE_H, board->board_width*TILE_W, 1,
                           128,128,128);
       }
-    cursor.draw();
+    cursor.draw(game_session);
     draw_status_info();
 
     screen->update();
@@ -142,7 +138,8 @@ void LevelEditor::load_level(int nb)
 void LevelEditor::save_level()
   {
   board->save(game_session->levelset_absolute,
-              homedir+"/levels/"+game_session->levelset_filename,
+              //homedir+"/levels/"+game_session->levelset_filename,
+              homedir+"/levels/user.pod",
               game_session->level_nb);
   }
 
@@ -194,8 +191,8 @@ void LevelEditor::check_events()
             break;
           case SDLK_RIGHT:
             cursor.x++;
-            if(cursor.x >= BOARD_WIDTH)
-              cursor.x = BOARD_WIDTH-1;
+            if(cursor.x >= game_session->board->board_width)
+              cursor.x = game_session->board->board_width-1;
             break;
           case SDLK_UP:
             cursor.y--;
@@ -204,8 +201,8 @@ void LevelEditor::check_events()
             break;
           case SDLK_DOWN:
             cursor.y++;
-            if(cursor.y >= BOARD_HEIGHT)
-              cursor.y = BOARD_HEIGHT-1;
+            if(cursor.y >= game_session->board->board_height)
+              cursor.y = game_session->board->board_height-1;
             break;
           case SDLK_RETURN:
             if(event.key.keysym.mod & KMOD_ALT)
@@ -267,8 +264,7 @@ void LevelEditor::check_events()
             {
             save_level();
 
-            Gameloop gameloop;
-            gameloop.load_levelset(game_session->levelset_filename);
+            Gameloop gameloop("user.pod", true);
             gameloop.load_level(game_session->level_nb);
             gameloop.run(true);
             }
@@ -321,8 +317,8 @@ void LevelEditor::check_events()
           // replace the current tile by the current selected button
         if(event.button.button == SDL_BUTTON_LEFT)
           {
-          int x = (event.button.x-BOARD_X) / TILE_W, y = (event.button.y-BOARD_Y) / TILE_H;
-          if(x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT)
+          int x = (event.button.x-game_session->board->board_x) / TILE_W, y = (event.button.y-game_session->board->board_y) / TILE_H;
+          if(x >= 0 && x < game_session->board->board_width && y >= 0 && y < game_session->board->board_height)
             {
             modified = true;
             cursor.x = x;
@@ -340,8 +336,8 @@ void LevelEditor::check_events()
         // remove tiles if right button pressed
         else if(event.button.button == SDL_BUTTON_RIGHT)
           {
-          int x = (event.button.x-BOARD_X) / TILE_W, y = (event.button.y-BOARD_Y) / TILE_H;
-          if(x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT) {
+          int x = (event.button.x-game_session->board->board_x) / TILE_W, y = (event.button.y-game_session->board->board_y) / TILE_H;
+          if(x >= 0 && x < game_session->board->board_width && y >= 0 && y < game_session->board->board_height) {
             modified = true;
             board->set_tile(x, y, NO_TILE);
           }

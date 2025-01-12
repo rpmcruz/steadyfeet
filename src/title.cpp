@@ -22,6 +22,7 @@
 #include "lib/menu.h"
 #include "lib/screen.h"
 #include "lib/text.h"
+#include "lib/file_access.h"
 #include "title.h"
 #include "background.h"
 #include "gameloop.h"
@@ -42,7 +43,7 @@ const char credits[CREDITS_NB][256] = {
 
 #define IDLE_TIME 15000
 
-static GameSession* game_session;
+static GameSession *demo;
 static SDL_Event event;
 
 static Timer demo_timer;
@@ -55,7 +56,7 @@ void start_demo()
   demo_step = 0;
   sub_demo_step = 0;
   demo_timer.start(1000);
-  game_session->load_demo(); 
+  demo->load_demo(); 
   }
 
 void end_demo()
@@ -68,7 +69,7 @@ void update_board_demo();
 void update_demo()
   {
   if(demo_step != 3 && (demo_step != 0 || sub_demo_step > 1))
-    game_session->player->draw_icon(screen->w/2-17, 125);
+    demo->player->draw_icon(screen->w/2-17, 125);
 
   if(demo_step > 1 && !demo_timer.check())
     {
@@ -85,7 +86,7 @@ void update_demo()
       print_highscore();
       break;
     case 3:
-      game_session->draw_game_info_msg();
+      demo->draw_game_info_msg();
       break;
     case 4:
       end_demo();
@@ -126,7 +127,7 @@ void update_board_demo()
   /* Let's update the step. */
   sub_demo_step++;
 
-  Player* player = game_session->player;
+  Player* player = demo->player;
   switch(sub_demo_step)
     {
     case 1: case 2: case 3:
@@ -167,9 +168,38 @@ void update_board_demo()
     }
   }
 
-void show_title()
-  {
-  game_session = new GameSession(false);
+Menu *main_menu = NULL;
+std::vector<std::string> data_levelsets;
+
+void init_menu() {
+  if(main_menu != NULL)
+    delete main_menu;
+  main_menu = new Menu("main");
+  main_menu->add_entry("Start Game", START_GAME_ID, 16);
+  int i = 0;
+  //data_levelsets = get_files_in_dir(datadir + "/levels");
+  data_levelsets = {"series1.pod", "series2.pod", "series3.pod", "series4.pod", "kgryzzles.pod"};
+  for(std::string levelset: data_levelsets) {
+    main_menu->add_subentry(levelset.substr(0, levelset.size()-4), i, 13);
+    i++;
+  }
+  std::cerr << "check if file exists: " << homedir + "/levels/user.pod" << std::endl;
+  if(file_exists(homedir + "/levels/user.pod")) {
+    std::cerr << "it exists!\n";
+    main_menu->add_subentry("user", i, 13);
+  }
+  main_menu->add_subentry("Back", BACK_ID, 13);
+  main_menu->add_entry("Level Editor", LEVELEDITOR_ID, 16);
+  main_menu->add_entry("Quit", BACK_ID, 16);
+    main_menu->add_subentry("Really", 0, 13);
+    main_menu->add_subentry("Back", BACK_ID, 13);
+
+}
+
+void show_title() {
+  init_menu();
+
+  demo = new GameSession("series1.pod", false, false);
 
   start_demo();
 
@@ -181,16 +211,16 @@ void show_title()
   while(!done)
     {
     float elapsed_time = get_framerate();
-    game_session->update(elapsed_time);
+    demo->update(elapsed_time);
 
     // drawing stuff
     if(demo_seq && demo_step == 1)
-      game_session->draw();
+      demo->draw();
     else if(demo_seq)
-      game_session->background->draw();
+      demo->background->draw();
     else
       {
-      game_session->background->draw();
+      demo->background->draw();
       main_menu->show();
       }
 
@@ -244,16 +274,38 @@ void show_title()
         {
         case START_GAME_ID:
           {
-          main_menu->reset();
-          Gameloop gameloop;
-          gameloop.run();
+          int levelset = main_menu->get_submenu()->get_selected();
+          if(levelset == BACK_ID) {
+              main_menu->get_submenu()->reset();
+              main_menu->reset();
+          }
+          else if(levelset >= 0) {
+            main_menu->get_submenu()->reset();
+            main_menu->reset();
+            std::string levelset;
+            bool user_made;
+            user_made = levelset == (signed)data_levelsets.size();
+            if(user_made)
+              levelset = "user.pod";
+            else
+              levelset = data_levelsets[levelset];
+            Gameloop gameloop(levelset, user_made);
+            gameloop.run();
+          }
           }
           break;
         case LEVELEDITOR_ID:
           {
           main_menu->reset();
-          LevelEditor leveleditor;
+          std::string levelset("series1.pod");
+          bool user_made = false;
+          if(file_exists(homedir + "/levels/user.pod")) {
+            levelset = "user.pod";
+            user_made = true;
+          }
+          LevelEditor leveleditor(levelset, user_made);
           leveleditor.run();
+          init_menu();
           }
           break;
         case OPTIONS_ID:
@@ -286,4 +338,5 @@ void show_title()
           end_demo();
     }
   screen->shrink_fade(screen->w/2, screen->h/2, 220);
+  delete main_menu;
   }

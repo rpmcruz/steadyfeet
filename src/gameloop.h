@@ -30,13 +30,12 @@ class GameSession;
 class Gameloop
   {
   public:
-    Gameloop();
+    Gameloop(const std::string& levelset, bool user_made);
     ~Gameloop();
 
     /* Let's rock! */
     void run(bool testing_mode = false);
 
-    void load_levelset(const std::string& file);
     void load_level(int nb);
 
   private:

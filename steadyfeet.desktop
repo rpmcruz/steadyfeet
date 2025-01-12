@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=0.0.2
+Name=SteadyFeet
+Comment=Puzzle game
+Exec=steadyfeet
+Icon=steadyfeet
+Categories=Game

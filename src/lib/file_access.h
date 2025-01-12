@@ -19,7 +19,7 @@
 #define FILE_ACCESS_H
 
 #include <string>
-#include <set>
+#include <vector>
 
 extern std::string datadir;  // the system data stuff
 extern std::string homedir;  // here are stores personal level files and config
@@ -34,6 +34,6 @@ bool file_exists(const std::string& filename);
 bool dir_exists(const std::string& dirname);
 
 // get all files from a folder
-std::set<std::string> get_files_in_dir(const std::string& path);
+std::vector<std::string> get_files_in_dir(const std::string& path);
 
 #endif

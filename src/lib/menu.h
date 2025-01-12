@@ -37,21 +37,16 @@ class Menu;
 
 bool show_yes_no_dialog(const char* text);
 
-void setup_menus();
-void free_menus();
-
-// the different menus:
-extern Menu* main_menu;
-
 struct MenuEntry
   {
-  MenuEntry(const std::string& str, int id);
+  MenuEntry(const std::string& str, int id, int font_size);
   ~MenuEntry();
 
   void draw(int x, int y, bool selected);
 
   std::string label;
   int id;
+  int font_size;
   };
 
 class Menu
@@ -60,8 +55,8 @@ class Menu
     Menu(const std::string &name);
     ~Menu();
 
-    void add_entry(const std::string& str, int id);
-    void add_subentry(const std::string& str, int id);
+    void add_entry(const std::string& str, int id, int font_size);
+    void add_subentry(const std::string& str, int id, int font_size);
 
     bool has_selected();
     int get_selected();

@@ -136,31 +136,24 @@ int main(int argc, char* argv[])
   SDL_EnableUNICODE(1);
 
   /* Load some stuff. */
-  setup_menus();
   read_highscores();
 
   /* Running the game */
   if(leveleditor_flag)
     {
-    LevelEditor leveleditor;
-    if(!levelfile_passed.empty())
-      leveleditor.load_levelset(levelfile_passed);
+    LevelEditor leveleditor(levelfile_passed, false);
     leveleditor.run();
     }
   else if(!levelfile_passed.empty())
     {
-    Gameloop gameloop;
-    gameloop.load_levelset(levelfile_passed);
+    Gameloop gameloop(levelfile_passed, false);
     gameloop.run();
     }
   else
     show_title();
 
-
-
   /* Finalizations */
   save_highscores();
-  free_menus();
 #if 0
   if(SDL_NumJoysticks())
     SDL_JoystickClose(joystick);

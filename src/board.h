@@ -20,11 +20,10 @@
 
 #include <string>
 
-#define BOARD_X ((640-BOARD_WIDTH*TILE_W)/2)
-#define BOARD_Y ((480-BOARD_HEIGHT*TILE_H)/2)
-
-#define BOARD_WIDTH  12
-#define BOARD_HEIGHT 12
+//#define BOARD_X ((640-BOARD_WIDTH*TILE_W)/2)
+//#define BOARD_Y ((480-BOARD_HEIGHT*TILE_H)/2)
+//#define BOARD_WIDTH  12
+//#define BOARD_HEIGHT 12
 
 // the size of each tile (width and height is the same)
 #define TILE_W 34
@@ -71,10 +70,12 @@ class Board
     int get_tile(int x, int y);
     void set_tile(int x, int y, Tile tile);
 
+    int board_x, board_y, board_width, board_height;
+
   private:
     Surface* surface[TOTAL_TILES];
 
-    int board[BOARD_WIDTH][BOARD_HEIGHT];
+    std::vector<std::vector<int>> board;
     int total_tiles;
     int base_x, base_y;
     GameSession *session;

@@ -25,23 +25,21 @@
 #include "surface.h"
 #include "file_access.h"
 
-#define ENTRY_FONT 16
-#define ENTRY_SIZE (ENTRY_FONT+15)
-
-#define SUBENTRY_FONT 13
-#define SUBENTRY_SIZE (SUBENTRY_FONT+8)
+#define ENTRY_SPACE 2
+//#define ENTRY_FONT 16
+//#define ENTRY_SIZE (ENTRY_FONT+15)
+//#define SUBENTRY_FONT 13
+//#define SUBENTRY_SIZE (SUBENTRY_FONT+8)
 
 static SDL_Event event;
-
-Menu* main_menu;
 
 int Menu::idle = false;
 
 bool show_yes_no_dialog(const char* text)
   {
   Menu menu("yesno");
-  menu.add_entry("Yes", 1);
-  menu.add_entry("No", 0);
+  menu.add_entry("Yes", 1, 16);
+  menu.add_entry("No", 0, 16);
   while(true)
     {
     screen->fill_rect(0,0,screen->w,screen->h, 0,0,0);
@@ -57,23 +55,8 @@ bool show_yes_no_dialog(const char* text)
   return sel;
   }
 
-void setup_menus()
-  {
-  main_menu = new Menu("main");
-  main_menu->add_entry("Start Game", START_GAME_ID);
-  main_menu->add_entry("Level Editor", LEVELEDITOR_ID);
-  main_menu->add_entry("Quit", BACK_ID);
-    main_menu->add_subentry("Really", 0);
-    main_menu->add_subentry("Back", BACK_ID);
-  }
-
-void free_menus()
-  {
-  delete main_menu;
-  }
-
-MenuEntry::MenuEntry(const std::string& str, int id)
-  : label(str), id(id)
+MenuEntry::MenuEntry(const std::string& str, int id, int font_size)
+  : label(str), id(id), font_size(font_size)
   { }
 
 MenuEntry::~MenuEntry()
@@ -82,9 +65,9 @@ MenuEntry::~MenuEntry()
 void MenuEntry::draw(int x, int y, bool selected)
   {
   if(selected)
-    draw_text(label.c_str(), x, y, ENTRY_FONT, 252,84,84, 168,0,0, CENTER_ALLIGN);
+    draw_text(label.c_str(), x, y, font_size, 252,84,84, 168,0,0, CENTER_ALLIGN);
   else
-    draw_text(label.c_str(), x, y, ENTRY_FONT, 252,252,252, 168,168,168, CENTER_ALLIGN);
+    draw_text(label.c_str(), x, y, font_size, 252,252,252, 168,168,168, CENTER_ALLIGN);
   }
 
 Menu::Menu(const std::string &name)
@@ -107,15 +90,15 @@ void Menu::reset()
   selected_submenu = -1;
   }
 
-void Menu::add_entry(const std::string& str, int id)
+void Menu::add_entry(const std::string& str, int id, int font_size)
   {
-  entries.push_back(MenuEntry(str, id));
+  entries.push_back(MenuEntry(str, id, font_size));
   submenus.push_back(NULL);
-  pos_y -= ENTRY_SIZE / 2;
-  width = std::max(width, (unsigned int)(str.size()*(ENTRY_FONT*1.25)));
+  pos_y -= font_size / 2;
+  width = std::max(width, (unsigned int)(str.size()*(font_size*1.25)));
   }
 
-void Menu::add_subentry(const std::string& str, int id)
+void Menu::add_subentry(const std::string& str, int id, int font_size)
   {
   assert(!submenus.empty());
   if(submenus.back() == NULL)
@@ -123,7 +106,7 @@ void Menu::add_subentry(const std::string& str, int id)
     submenus.back() = new Menu("submenu");
     submenus.back()->parent = this;
     }
-  submenus.back()->add_entry(str, id);
+  submenus.back()->add_entry(str, id, font_size);
   }
 
 bool Menu::has_selected()
@@ -167,12 +150,16 @@ void Menu::show()
   }
 
 void Menu::draw(int x)
-  {
-  screen->draw_animated_filled_rect(x-(width/2), pos_y + (hover_entry*ENTRY_SIZE),
-                                    width, ENTRY_FONT, 20);
-  for(unsigned int i = 0; i < entries.size(); i++)
-    entries[i].draw(x, pos_y + (i*ENTRY_SIZE), hover_entry == (int)i);
+{
+  int dy = 0;
+  for(unsigned int i = 0; i < entries.size(); i++) {
+    if(hover_entry == (int)i)
+      screen->draw_animated_filled_rect(x-(width/2), pos_y + dy,
+        width, entries[i].font_size, 20);
+    entries[i].draw(x, pos_y + dy, hover_entry == (int)i);
+    dy += entries[i].font_size * ENTRY_SPACE;
   }
+}
 
 void Menu::check_events(int pos_x)
   {
@@ -220,9 +207,13 @@ void Menu::check_events(int pos_x)
         unsigned int x = event.motion.x, y = event.motion.y;
         if(x < pos_x-(width/2) || x > pos_x-(width/2) + width)
           break;
-        int entry = (y - pos_y) / ENTRY_SIZE;
-        if(entry >= 0 && entry < (int)entries.size() && entry != hover_entry)
-          hover_entry = entry;
+
+        int dy = 0;
+        for(unsigned int i = 0; i < entries.size(); i++) {
+          if(y >= pos_y+dy && y < pos_y+dy+entries[i].font_size)
+            hover_entry = i;
+          dy += entries[i].font_size*ENTRY_SPACE;
+        }
         }
         break;
       case SDL_MOUSEBUTTONDOWN:
@@ -231,9 +222,16 @@ void Menu::check_events(int pos_x)
           unsigned int x = event.motion.x, y = event.motion.y;
           if(x < pos_x-(width/2) || x > pos_x-(width/2) + width)
             break;
-          int entry = (y - pos_y) / ENTRY_SIZE;
-          if(entry >= 0 && entry < (int)entries.size() && entry == hover_entry)
-            selected = true;
+
+          int dy = 0;
+          for(unsigned int i = 0; i < entries.size(); i++) {
+            if(y >= pos_y+dy && y < pos_y+dy+entries[i].font_size && hover_entry == (signed)i) {
+              selected = true;
+              if(submenus[hover_entry] != NULL)
+                selected_submenu = hover_entry;
+            }
+            dy += entries[i].font_size*ENTRY_SPACE;
+          }
           }
         break;
       case SDL_QUIT:	// window closed

@@ -123,7 +123,7 @@ std::cerr << "saving highscore: " << filename << std::endl;
     }
   }
 
-void add_highscore(unsigned int score, Background* background)
+void add_highscore(unsigned int score, Background* background, bool completed_game)
   {
   /* Firstly, let's check if the player got a new highscore. */
   int step = 0;
@@ -164,6 +164,8 @@ void add_highscore(unsigned int score, Background* background)
     if(step < 2)
       {
       draw_text("- High Score -", screen->w/2, 180, 18, 255,0,0, 255,0,0, CENTER_ALLIGN);
+      if(completed_game)
+        draw_text("Congratulations for Victory", screen->w/2, 240, 18, 255,165,0, 255,255,0, CENTER_ALLIGN);
       {
       char str[4];
       for(int i = 0; i < 3; i++)
