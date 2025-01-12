@@ -170,7 +170,6 @@ void update_board_demo()
 void show_title()
   {
   game_session = new GameSession(false);
-  game_session->activate();
 
   start_demo();
 

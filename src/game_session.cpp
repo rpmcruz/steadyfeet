@@ -25,13 +25,11 @@
 #include "player.h"
 #include "background.h"
 
-GameSession* GameSession::current = 0;
-
 GameSession::GameSession(bool border)
   : level_nb(0)
   {
-  board = new Board();
-  player = new Player();
+  board = new Board(this);
+  player = new Player(this);
   background = new Background(border);
   set_levelset("series1.pod");
   }

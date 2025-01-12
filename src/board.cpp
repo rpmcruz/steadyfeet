@@ -27,7 +27,8 @@
 #include "player.h"
 #include "background.h"
 
-Board::Board()
+Board::Board(GameSession *session)
+: session(session)
   {
   char str[1024];
   for(int i = 0; i < TOTAL_TILES; i++)
@@ -47,7 +48,7 @@ Board::~Board()
 void Board::load_demo()
   {
   base_x = 1; base_y = 7;
-  GameSession::current->player->set_pos(10, 7);
+  session->player->set_pos(10, 7);
   total_tiles = 10;
 
   for(int x = 0; x < BOARD_WIDTH; x++)
@@ -118,7 +119,7 @@ int Board::load(const std::string& filename, int level)
   file >> c; pla_x += (c - '0');
   file >> c; pla_y = (c - '0') * 10;
   file >> c; pla_y += (c - '0');
-  GameSession::current->player->set_pos(pla_x-1, pla_y-1);
+  session->player->set_pos(pla_x-1, pla_y-1);
 
   /* Let's now read the file into our board array */
   total_tiles = 0;
@@ -210,8 +211,8 @@ void Board::save(const std::string& input_filename, const std::string& output_fi
     }
 
   /* Secondly, let's write player's pos. */
-  int pla_x = GameSession::current->player->tile_x;
-  int pla_y = GameSession::current->player->tile_y;
+  int pla_x = session->player->tile_x;
+  int pla_y = session->player->tile_y;
   stream += pla_x / 10 + '0';
   stream += pla_x % 10 + '0' + 1;
   stream += pla_y / 10 + '0';
@@ -317,30 +318,30 @@ void Board::set_tile(int x, int y, Tile tile)
 
 void Board::check_players_pos()
   {
-  Player* pla = GameSession::current->player;
+  Player* player = session->player;
 
   /* Check player's previous position. */
-  switch(get_tile(pla->old_tile_x, pla->old_tile_y))
+  switch(get_tile(player->old_tile_x, player->old_tile_y))
     {
     case ONE_TIME_TILE:
     case TWO_TIMES_TILE:
     case THREE_TIMES_TILE:
       /* reduce tile life. */
-      board[pla->old_tile_x][pla->old_tile_y]--;
-      GameSession::current->player->stats.add_score(10);
+      board[player->old_tile_x][player->old_tile_y]--;
+      player->stats.add_score(10);
 
       total_tiles--;
       if(total_tiles == 0 &&
-         get_tile(pla->tile_x, pla->tile_y) == PERMANENT_TILE)
+         get_tile(player->tile_x, player->tile_y) == PERMANENT_TILE)
         {
 std::cerr << "level completed\n";
         /* Level completed!! */
-        GameSession::current->set_level_completed();
+        session->set_level_completed();
         }
       break;
     case TELEPORT_TILE:
 std::cerr << "older tile is a teleport, remove it\n";
-      board[pla->old_tile_x][pla->old_tile_y] = NO_TILE;
+      board[player->old_tile_x][player->old_tile_y] = NO_TILE;
       total_tiles--;
       break;
     default:
@@ -348,15 +349,15 @@ std::cerr << "older tile is a teleport, remove it\n";
     }
 
   /* Check player's current position. */
-  switch(get_tile(pla->tile_x, pla->tile_y))
+  switch(get_tile(player->tile_x, player->tile_y))
     {
     case NO_TILE:
 std::cerr << "kill the player\n";
-      pla->kill();
+      player->kill();
       break;
     case TELEPORT_TILE:
 std::cerr << "teleporting player\n";
-      pla->warp(base_x, base_y);
+      player->warp(base_x, base_y);
       break;
     default:
       break;

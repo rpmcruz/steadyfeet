@@ -35,8 +35,6 @@ static SDL_Event event;
 Gameloop::Gameloop()
   {
   game_session = new GameSession();
-
-  game_session->activate();
   player = game_session->player;
   board = game_session->board;
   background = game_session->background;

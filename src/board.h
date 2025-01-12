@@ -31,6 +31,7 @@
 #define TILE_H 24
 
 class Surface;
+class GameSession;
 
 enum Tile {
   NO_TILE = -1,
@@ -48,7 +49,7 @@ class Board
   friend class GameSession;
 
   public:
-    Board();
+    Board(GameSession *session);
     ~Board();
 
     /* Loads level file. Returns -1 if error, 0 otherwise. */
@@ -76,6 +77,7 @@ class Board
     int board[BOARD_WIDTH][BOARD_HEIGHT];
     int total_tiles;
     int base_x, base_y;
+    GameSession *session;
   };
 
 #endif /*BOARD_H*/ 

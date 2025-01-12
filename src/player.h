@@ -23,6 +23,7 @@
 #include "lib/timer.h"
 
 class Surface;
+class GameSession;
 
 enum Direction { STOP, LEFT, RIGHT, UP, DOWN };
 enum AnimationSequence { NO_SEQ, FALLING_SEQ, WINNING_SEQ, WARPING_SEQ, MOVING_SEQ };
@@ -48,7 +49,7 @@ class Stats
 class Player
   {
   public:
-    Player();
+    Player(GameSession *session);
     ~Player();
 
     /* Should be called on level start. */
@@ -88,6 +89,7 @@ class Player
     Stats stats;
 
   private:
+    GameSession *session;
     Surface *surface, *surface_falling;
 
     Direction direction;  // next direction

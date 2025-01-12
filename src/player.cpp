@@ -35,8 +35,8 @@
 /* These values are related with data stuff. */
 #define FALLING_FRAMES 8
 
-Player::Player()
-  : tile_x(0), tile_y(0)
+Player::Player(GameSession *session)
+  : tile_x(0), tile_y(0), session(session)
   {
   surface = new Surface((datadir + "/graphics/player.bmp").c_str(), 255, 0, 255);
   surface_falling = new Surface((datadir + "/graphics/player-falling.bmp").c_str(), 255, 0, 255);
@@ -115,7 +115,7 @@ void Player::kill()
 
   sequence = FALLING_SEQ;
   timer.start(DEAD_TIME);
-//  GameSession::current->background->freeze();
+//  session->background->freeze();
   }
 
 void Player::set_winner()
@@ -126,8 +126,8 @@ std::cerr << "winner!\n";
 
   stats.add_score(10);
   before_win_score = stats.score;
-  if(GameSession::current->level_time.check())
-    stats.add_score(GameSession::current->level_time.get_left()/1000 * 10);
+  if(session->level_time.check())
+    stats.add_score(session->level_time.get_left()/1000 * 10);
   }
 
 void Player::warp(int x, int y)
@@ -182,7 +182,7 @@ void Player::update()
       {
       sequence = NO_SEQ;
 //      if(sequence == WARPING_SEQ || sequence == MOVING_SEQ)
-        GameSession::current->board->check_players_pos();
+        session->board->check_players_pos();
       }
     else
       return;
@@ -195,6 +195,6 @@ void Player::update()
     sequence = MOVING_SEQ;
     timer.start(MOVE_TIME);
 
-//    GameSession::current->board->check_players_pos();
+//    session->board->check_players_pos();
     }
   }

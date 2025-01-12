@@ -40,9 +40,6 @@ class GameSession
     GameSession(bool background_border = true);
     ~GameSession();
 
-    void activate()
-      { current = this; };
-
     void set_levelset(const std::string& file);
 
     void load_level(int nb);
@@ -58,7 +55,6 @@ class GameSession
 
     /* These stuff is here so that Board and Player can communicate with
        each other. For instance, GameSession::current->player->set_pos(0,0); */
-    static GameSession* current;
     Board* board;
     Player* player;
     Background* background;

@@ -84,7 +84,6 @@ LevelEditor::LevelEditor()
   button[1]->set_selected();
   current_tile = 0;
 
-  game_session->activate();
   player = game_session->player;
   board = game_session->board;
   background = game_session->background;
@@ -150,6 +149,7 @@ void LevelEditor::save_level()
 void LevelEditor::draw_status_info()
   {
   draw_text("Level Editor", 22, 22, 14, 168, 0, 0, 252, 84, 84);
+  draw_text("F1 for help", 430,22, 14, 255,165,0, 255,255,0);
 
   int sz;
   char str[256];
@@ -271,8 +271,6 @@ void LevelEditor::check_events()
             gameloop.load_levelset(game_session->levelset_filename);
             gameloop.load_level(game_session->level_nb);
             gameloop.run(true);
-
-            game_session->activate();  // re-activate our GameSession
             }
             break;
           case SDLK_F4:

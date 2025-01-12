@@ -79,7 +79,7 @@ void Screen::fill_rect(int x, int y, int w, int h, int r, int g, int b, int a)
   {
   if(a == 255)
     {
-    SDL_Rect rect = { x, y, w, h };
+    SDL_Rect rect = { (Sint16)x, (Sint16)y, (Uint16)w, (Uint16)h };
     SDL_FillRect(sdl_screen, &rect, SDL_MapRGB(sdl_screen->format, r, g, b));
     }
   else
