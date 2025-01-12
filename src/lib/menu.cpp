@@ -102,7 +102,6 @@ Menu::~Menu()
 
 void Menu::reset()
   {
-    std::cerr << name << "reset -> selected=false\n";
   hover_entry = 0;
   selected = (cancel = false);
   selected_submenu = -1;
@@ -203,11 +202,8 @@ void Menu::check_events(int pos_x)
               break;
               }
           case SDLK_SPACE:
-            if(submenus[hover_entry] != NULL) {
+            if(submenus[hover_entry] != NULL)
               selected_submenu = hover_entry;
-              std::cerr << name << "selected submenu = " << hover_entry << std::endl;
-            }
-            std::cerr << name << "selected = true (space)\n";
             selected = true;
             break;
           default:
@@ -236,10 +232,8 @@ void Menu::check_events(int pos_x)
           if(x < pos_x-(width/2) || x > pos_x-(width/2) + width)
             break;
           int entry = (y - pos_y) / ENTRY_SIZE;
-          if(entry >= 0 && entry < (int)entries.size() && entry == hover_entry) {
-            std::cerr << name << "selected = true (mouse button down)\n";
+          if(entry >= 0 && entry < (int)entries.size() && entry == hover_entry)
             selected = true;
-          }
           }
         break;
       case SDL_QUIT:	// window closed

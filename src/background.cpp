@@ -50,8 +50,8 @@ Background::~Background()
 void Background::reset()
   {
   // choose a random speed
-  vel_x = ((rand() % (MAX_VEL*20)) / 10.0) - (MAX_VEL/2);
-  vel_y = ((rand() % (MAX_VEL*20)) / 10.0) - (MAX_VEL/2);
+  vel_x = (rand() % (MAX_VEL*2)) - (MAX_VEL/2);
+  vel_y = (rand() % (MAX_VEL*2)) - (MAX_VEL/2);
 
   // choose some random positions
   for(int i = 0; i < STARS_NB; i++)
@@ -62,7 +62,7 @@ void Background::reset()
   }
 
 void Background::go_fullspeed()
-  {
+  {  // called on level completion
   if(vel_x > 0)
     vel_x = FULLSPEED_VEL;
   else if(vel_x < 0)
@@ -83,13 +83,13 @@ void Background::update(float elapsed_time)
   float vx = vel_x, vy = vel_y;
   for(int i = 0; i < STARS_NB; i++)
     {
-    if(i == STARS_NB / 2)  // use other speed for half of them
+/*    if(i == STARS_NB / 2)  // use other speed for half of them
       {
       vx -= vx * 0.10;
       vy -= vy * 0.10;
-      }
-    pos_x[i] += vx * elapsed_time;
-    pos_y[i] += vy * elapsed_time;
+      }*/
+    pos_x[i] += vx * elapsed_time * 0.01;
+    pos_y[i] += vy * elapsed_time * 0.01;
 
     if(pos_x[i] < area_x)
       pos_x[i] += area_w;
