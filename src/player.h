@@ -29,21 +29,18 @@ enum Direction { STOP, LEFT, RIGHT, UP, DOWN };
 enum AnimationSequence { NO_SEQ, FALLING_SEQ, WINNING_SEQ, WARPING_SEQ, MOVING_SEQ };
 
 /* Stats takes care of the information score, life, etc. */
-class Stats
+struct Stats
   {
-  public:
-    Stats() { reset_game(); };
+    Stats() { reset(); };
     ~Stats() { };
 
-    void reset_game()
-      { lives_nb = 3; score = 0; };
-
-    void loose_life()
-      { lives_nb--; }
+    void reset()
+      { score = 0; };
+    int get_score() { return score; }
      void add_score(int nb)
       { score += nb; }
 
-    int lives_nb, score;
+    int score;
   };
 
 class Player
@@ -82,13 +79,14 @@ class Player
       { return sequence && timer.check(); }
 
     int get_score();  // hack to show score increasing at end
+    int get_high_score();  // get the score at the end of the game
 
     /* Let's put this public to avoid the get_X() funcs. */
     int tile_x, tile_y, old_tile_x, old_tile_y;
-
-    Stats stats;
+    bool has_moved;
 
   private:
+    friend class Board;
     GameSession *session;
     Surface *surface, *surface_falling;
 
@@ -99,6 +97,7 @@ class Player
     std::list <Direction> dir_queue;
 
     int before_win_score;  // score before the end level bonus
+    Stats global_stats, level_stats;
   };
 
 #endif /*PLAYER_H*/

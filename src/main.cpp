@@ -32,7 +32,7 @@
     #warning If installed, the game will not work!
 #endif
 
-#define VERSION "0.0.2"
+#define VERSION "0.0.3"
 
 /* Check if directory exists. */
 bool dir_exists(const std::string& dirname);

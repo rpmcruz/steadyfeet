@@ -52,16 +52,18 @@ Player::~Player()
 
 void Player::reset_game()
   {
-  stats.reset_game();
-
+  global_stats.reset();
   reset_level();
+  has_moved = false;
   }
 
 void Player::reset_level()
   {
+  level_stats.score = global_stats.score;
   sequence = NO_SEQ;
   direction = STOP;
   dir_queue.clear();
+  has_moved = false;
   }
 
 void Player::draw()
@@ -111,8 +113,6 @@ void Player::draw_icon(int x, int y)
 
 void Player::kill()
   {
-  stats.loose_life();
-
   sequence = FALLING_SEQ;
   timer.start(DEAD_TIME);
 //  session->background->freeze();
@@ -124,10 +124,11 @@ std::cerr << "winner!\n";
   sequence = WINNING_SEQ;
   timer.start(WINNER_TIME);
 
-  stats.add_score(10);
-  before_win_score = stats.score;
+  level_stats.add_score(10);
+  before_win_score = level_stats.score;
   if(session->level_time.check())
-    stats.add_score(session->level_time.get_left()/1000 * 10);
+    level_stats.add_score(session->level_time.get_left()/1000 * 10);
+  global_stats.score = level_stats.score;
   }
 
 void Player::warp(int x, int y)
@@ -164,15 +165,21 @@ void Player::force_direction(Direction dir)
       break;
     }
   direction = dir;
+  has_moved = true;
   }
 
 int Player::get_score()
   {
   if(sequence != WINNING_SEQ)
-    return stats.score;
-  return timer.get_gone() * (stats.score-before_win_score) / timer.get_total_time()
+    return level_stats.score;
+  return timer.get_gone() * (level_stats.score-before_win_score) / timer.get_total_time()
          + before_win_score;
   }
+
+int Player::get_high_score()
+{
+  return global_stats.score;
+}
 
 void Player::update()
   {

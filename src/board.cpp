@@ -359,7 +359,7 @@ void Board::check_players_pos()
     case THREE_TIMES_TILE:
       /* reduce tile life. */
       board[player->old_tile_x][player->old_tile_y]--;
-      player->stats.add_score(10);
+      player->level_stats.add_score(10);
 
       total_tiles--;
       if(total_tiles == 0 &&

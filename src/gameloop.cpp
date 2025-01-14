@@ -52,7 +52,7 @@ void Gameloop::run(bool test_mode)
 
   start_framerate();
 
-  while(game_session->state != ABORTED)
+  while(true)
     {
     check_events();
 
@@ -60,33 +60,24 @@ void Gameloop::run(bool test_mode)
     game_session->update(elapsed_time);
 
     /* Do the ordinary gameplay stuff. */
-    if(player->is_dead())
-      {
-std::cerr << "player dead\n";
+    if(player->is_dead() || game_session->state == ABORTED)
+      {  // player gave up
       if(test_mode)
         break;
-      else
-        {
-        game_session->state = LOST;
-        if(player->stats.lives_nb == 0)
-          {
-std::cerr << "game end\n";
-          /* Game end. */
-          // FIXME: game end should also happen on last level
-          add_highscore(player->stats.score, background, false);
-          break;
-          }
-        else  // just reload the level
-{
-std::cerr << "let's re-load this level\n";
-          load_level(game_session->level_nb);
-}
-        }
+      game_session->state = LOST;
+      if(!player->has_moved) {
+        add_highscore(player->get_high_score(), background, false);
+        break;
       }
-    if(game_session->state == COMPLETED && !player->is_animating()) {
-      if(game_session->level_nb >= game_session->total_levels)
-        add_highscore(player->stats.score, background, true);
-      load_level(game_session->level_nb+1);
+      load_level(game_session->level_nb);
+      }
+
+    if(!test_mode) {
+      if(game_session->state == COMPLETED && !player->is_animating()) {
+        if(game_session->level_nb >= game_session->total_levels)
+          add_highscore(player->get_high_score(), background, true);
+        load_level(game_session->level_nb+1);
+      }
     }
 
     // time for drawing
@@ -136,9 +127,9 @@ void Gameloop::draw_status_info()
     sprintf(str, "%d", time);
   sz = draw_text("Time ", 500, 455, 12, 84, 252, 84, 0, 168, 0);
   draw_text(str, 500+sz, 455, 12, 252, 84, 252, 168, 0, 168);
-  // life icons
-  for(int i = 1; i < player->stats.lives_nb; i++)
-    player->draw_icon(5+((i-1)*(TILE_W+5)), 450);
+  // life icons (I have removed lives from the game)
+//  for(int i = 1; i < player->stats.lives_nb; i++)
+//    player->draw_icon(5+((i-1)*(TILE_W+5)), 450);
   }
 
 void Gameloop::clean_events()
