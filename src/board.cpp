@@ -53,8 +53,8 @@ void Board::load_demo()
 
   board_width = board_height = 12;
   board.resize(board_width);
-  for (auto& row : board) {
-      row.resize(board_height, 0);
+  for (std::vector<std::vector<int> >::iterator it = board.begin(); it != board.end(); it++) {
+      it->resize(board_height, 0);
   }
 
   board_x = (640-board_width*TILE_W)/2;
@@ -121,8 +121,8 @@ int Board::load(const std::string& filename, int level)
   file.seekg(0, std::ios::beg);
 
   board.resize(board_width);
-  for (auto& row : board) {
-      row.resize(board_height, 0);
+  for (std::vector<std::vector<int> >::iterator it = board.begin(); it != board.end(); it++) {
+      it->resize(board_height, 0);
   }
 
   base_x = (base_y = -1);

@@ -75,7 +75,7 @@ class Board
   private:
     Surface* surface[TOTAL_TILES];
 
-    std::vector<std::vector<int>> board;
+    std::vector<std::vector<int> > board;
     int total_tiles;
     int base_x, base_y;
     GameSession *session;

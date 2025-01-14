@@ -178,9 +178,14 @@ void init_menu() {
   main_menu->add_entry("Start Game", START_GAME_ID, 16);
   int i = 0;
   //data_levelsets = get_files_in_dir(datadir + "/levels");
-  data_levelsets = {"series1.pod", "series2.pod", "series3.pod", "series4.pod", "kgryzzles.pod"};
-  for(std::string levelset: data_levelsets) {
-    main_menu->add_subentry(levelset.substr(0, levelset.size()-4), i, 13);
+  data_levelsets.clear();
+  data_levelsets.push_back("series1.pod");
+  data_levelsets.push_back("series2.pod");
+  data_levelsets.push_back("series3.pod");
+  data_levelsets.push_back("series4.pod");
+  data_levelsets.push_back("kgryzzles.pod");
+  for(std::vector<std::string>::iterator it = data_levelsets.begin(); it != data_levelsets.end(); it++) {
+    main_menu->add_subentry(it->substr(0, it->size()-4), i, 13);
     i++;
   }
   std::cerr << "check if file exists: " << homedir + "/levels/user.pod" << std::endl;
@@ -282,14 +287,14 @@ void show_title() {
           else if(levelset >= 0) {
             main_menu->get_submenu()->reset();
             main_menu->reset();
-            std::string levelset;
+            std::string levelset_str;
             bool user_made;
             user_made = levelset == (signed)data_levelsets.size();
             if(user_made)
-              levelset = "user.pod";
+              levelset_str = "user.pod";
             else
-              levelset = data_levelsets[levelset];
-            Gameloop gameloop(levelset, user_made);
+              levelset_str = data_levelsets[levelset];
+            Gameloop gameloop(levelset_str, user_made);
             gameloop.run();
           }
           }
